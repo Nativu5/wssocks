@@ -6,6 +6,16 @@
 ![Docker Image Version (latest semver)](https://img.shields.io/docker/v/genshen/wssocks?sort=semver&logo=docker)
 ![Docker Pulls](https://img.shields.io/docker/pulls/genshen/wssocks?logo=docker)
 
+----
+
+This fork implements support for Sangfor SSL VPN, making it possible to establish a tunnel passthrough Sangfor Firewall via WebSocket.
+
+To use it, you need to follow the steps in [Sangfor.md](Sangfor.md).
+
+This work is based on the original [wssocks](https://github.com/genshen/wssocks). The original README is below.
+
+----
+
 > socks5 over websocket.
 
 wssocks can proxy TCP and UDP(not implemented currently) connections via socks5. But the socks5 data is wrapped in websockets and then sent to server.
