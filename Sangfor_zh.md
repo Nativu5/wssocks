@@ -13,7 +13,7 @@
 
 ## 快速入门
 
-1. 设置wssock服务器
+1. 设置 wssock 服务器
 
     启动服务器时，应添加 `--twf` 选项启用对 Sangfor VPN 的支持。
 
@@ -25,8 +25,8 @@
 
     在 Sangfor Web VPN 中，wssock 服务器将被代理。例如：
 
-    - wssock服务器地址：`example.com:1088`
-    - 桑福Web VPN地址：`vpn.uestc.edu.cn`
+    - wssock 服务器地址：`example.com:1088`
+    - Sangfor Web VPN地址：`vpn.uestc.edu.cn`
     
     wssock 服务器将被代理到 `example-com-1088-p.vpn.uestc.edu.cn:8118`。
 
