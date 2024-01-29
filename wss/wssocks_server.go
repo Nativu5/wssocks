@@ -2,9 +2,10 @@ package wss
 
 import (
 	"context"
-	log "github.com/sirupsen/logrus"
 	"io"
 	"net/http"
+
+	log "github.com/sirupsen/logrus"
 	"nhooyr.io/websocket"
 )
 
@@ -13,6 +14,8 @@ type WebsocksServerConfig struct {
 	EnableConnKey    bool   // bale connection key
 	ConnKey          string // connection key
 	EnableStatusPage bool   // enable/disable status page
+
+	EnableTWFID bool // enable/disable TWFID display
 }
 
 type ServerWS struct {
@@ -26,9 +29,29 @@ func NewServeWS(hc *HubCollection, config WebsocksServerConfig) *ServerWS {
 }
 
 func (s *ServerWS) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	// check if upgrade
+	if r.Header.Get("Upgrade") != "websocket" {
+		// check if enable TWFID display
+		if s.config.EnableTWFID {
+			cookie, err := r.Cookie("TWFID")
+			if err == nil {
+				w.WriteHeader(http.StatusOK)
+				w.Write([]byte("Find TWFID: " + cookie.Value + "\n"))
+			} else {
+				w.WriteHeader(http.StatusNotFound)
+				w.Write([]byte("TWFID not found!\n"))
+			}
+			return
+		}
+
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte("Bad Request, expecting upgrade\n"))
+		return
+	}
+
 	// check connection key
 	if s.config.EnableConnKey && r.Header.Get("Key") != s.config.ConnKey {
-		w.WriteHeader(401)
+		w.WriteHeader(http.StatusUnauthorized)
 		w.Write([]byte("Access denied!\n"))
 		return
 	}

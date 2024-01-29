@@ -50,6 +50,8 @@ func init() {
 (e.g: --ws-header "X-Custom-Header=some-value" --ws-header "X-Second-Header=another-value")`)
 	clientCommand.FlagSet.BoolVar(&client.skipTLSVerify, "skip-tls-verify", false, `skip verification of the server's certificate chain and host name.`)
 
+	clientCommand.FlagSet.StringVar(&client.twfID, "twfid", "", `set TWFID (Sangfor SSL VPN Only).`)
+
 	clientCommand.FlagSet.Usage = clientCommand.Usage // use default usage provided by cmds.Command.
 	clientCommand.Runner = &client
 
@@ -66,6 +68,8 @@ type client struct {
 	remoteHeaders http.Header // parsed websocket headers (not presented in flag).
 	key           string
 	skipTLSVerify bool
+
+	twfID string // TWFID for Sangfor SSL VPN
 }
 
 func (c *client) PreRun() error {
@@ -83,6 +87,12 @@ func (c *client) PreRun() error {
 		log.Info("http(s) proxy is enabled.")
 	} else {
 		log.Info("http(s) proxy is disabled.")
+	}
+
+	// Write TWFID to cookie
+	if c.twfID != "" {
+		c.headers = append(c.headers, "Cookie=TWFID="+c.twfID)
+		log.Info("TWFID is set to " + c.twfID)
 	}
 
 	// check header format.

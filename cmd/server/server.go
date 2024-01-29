@@ -38,6 +38,8 @@ func init() {
 	serverCommand.FlagSet.BoolVar(&s.status, "status", false, `enable/disable service status page.`)
 	serverCommand.FlagSet.Usage = serverCommand.Usage // use default usage provided by cmds.Command.
 
+	serverCommand.FlagSet.BoolVar(&s.twf, "twf", false, `enable/disable TWFID display when not upgrading to websocket (Sangfor SSL VPN Only).`)
+
 	serverCommand.Runner = &s
 	cmds.AllCommands = append(cmds.AllCommands, serverCommand)
 }
@@ -52,6 +54,8 @@ type server struct {
 	tlsCertFile string // path of certificate file if HTTPS/tls is enabled.
 	tlsKeyFile  string // path of private key file if HTTPS/tls is enabled.
 	status      bool   // enable service status page
+
+	twf bool // display twf id when not upgrading to websocket
 }
 
 func genRandBytes(n int) ([]byte, error) {
@@ -88,7 +92,7 @@ func (s *server) PreRun() error {
 }
 
 func (s *server) Run() error {
-	config := wss.WebsocksServerConfig{EnableHttp: s.http, EnableConnKey: s.authEnable, ConnKey: s.authKey, EnableStatusPage: s.status}
+	config := wss.WebsocksServerConfig{EnableHttp: s.http, EnableConnKey: s.authEnable, ConnKey: s.authKey, EnableStatusPage: s.status, EnableTWFID: s.twf}
 	hc := wss.NewHubCollection()
 
 	http.Handle(s.wsBasePath, wss.NewServeWS(hc, config))
@@ -106,6 +110,9 @@ func (s *server) Run() error {
 	}
 	if s.status {
 		log.Info("service status page is enabled at `/status` endpoint")
+	}
+	if s.twf {
+		log.Infof("TWFID display is enabled at `%s` endpoint when not upgrading.", s.wsBasePath)
 	}
 
 	listenAddrToLog := s.address + s.wsBasePath
